@@ -13,7 +13,7 @@ let connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Ben13folds!",
+  password: "",
   database: "employeeTracker_db"
 });
 
