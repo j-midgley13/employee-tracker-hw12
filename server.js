@@ -13,7 +13,7 @@ let connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: "Ben13folds!",
   database: "employeeTracker_db"
 });
 
@@ -41,8 +41,8 @@ function start() {
 
                 case "View Employees":
                     console.log("VE success")
-                    // viewEmployees();
-                    start();
+                    viewEmployees();
+                    // start();
                     break;
 
                 case "Add Employee":
@@ -64,3 +64,22 @@ function start() {
             };
         })
 };
+
+function viewEmployees(){
+    connection.query("SELECT * FROM employee", function(err, res) {
+      if (err) throw err;
+      
+      let viewInfo = [];
+
+      for (i = 0; i < res.length; i++){
+         viewInfo.push({
+           first_name: res[i].first_name,
+           last_name: res[i].last_name,
+           role: res[i].role_id,
+           manager: res[i].manager_id
+         })
+      }
+      console.table(viewInfo);
+      start();
+    });
+  };

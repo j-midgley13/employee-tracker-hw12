@@ -25,4 +25,4 @@ CREATE TABLE role (
     salary DECIMAL(10, 2) NOT NULL,
     department_id INT NOT NULL,
     PRIMARY KEY (id)
-);
+);git 
