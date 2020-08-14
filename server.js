@@ -13,7 +13,7 @@ let connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Ben13folds!",
+  password: "",
   database: "employeeTracker_db"
 });
 
@@ -33,7 +33,7 @@ function start() {
         {
             type: "list",
             name: "startMenu",
-            message: "Welcome to the employee tracker! Choose from the choices below.",
+            message: "Welcome to the employee tracker! Choose from the selections below.",
             choices: ["View Employees", "Add Employee", "Update Employee Role", "Exit"]
         },
         ).then(response => {
@@ -47,8 +47,8 @@ function start() {
 
                 case "Add Employee":
                     console.log("AE success")
-                    // addEmployee();
-                    start();
+                    addEmployee();
+                    // start();
                     break;
 
                 case "Update Employee Role":
@@ -83,3 +83,49 @@ function viewEmployees(){
       start();
     });
   };
+
+  function addEmployee(){
+    inquirer
+    .prompt([
+        {
+        type: "input",
+        name: "first_name",
+        message: "New Employee's First Name?"
+        },
+    {
+        type: "input",
+        name: "last_name",
+        message: "New Employee's Last Name?"
+    },
+    {
+        type: "number",
+        name: "role_id",
+        message: "What will be the Employee's role id?"
+    },
+    {
+        type: "number",
+        name: "manager_id",
+        message: "What is the Employee's manager id?"
+    }
+    ]).then( response => {
+        createEmpDB(response);
+        start();
+      });
+};
+
+function createEmpDB(response){
+  console.log("Inserting a new employee...\n");
+  var query = connection.query(
+    "INSERT INTO employee SET ?",
+    {
+      first_name: response.first_name,
+      last_name: response.last_name,
+      role_id: response.role_id,
+      manager_id: response.manager_id
+    },
+    function(err, res) {
+      if (err) throw err;
+      console.log(res.affectedRows + " New employee created!\n");
+    }
+  );
+};
