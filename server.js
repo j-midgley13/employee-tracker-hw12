@@ -13,7 +13,7 @@ let connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: "Ben13folds!",
   database: "employeeTracker_db"
 });
 
@@ -34,7 +34,7 @@ function start() {
             type: "list",
             name: "startMenu",
             message: "Welcome to the employee tracker! Choose from the selections below.",
-            choices: ["View Employees", "Add Employee", "Update Employee Role", "Exit"]
+            choices: ["View Employees", "Add Employee", "Update Employee Role", "Remove Employee", "Exit"]
         },
         ).then(response => {
             switch(response.startMenu) {
@@ -53,8 +53,14 @@ function start() {
 
                 case "Update Employee Role":
                     console.log("UER success")
-                    // updateEmployee();
-                    start();
+                    updateEmployee();
+                    // start();
+                    break;
+
+                case "Remove Employee":
+                    console.log("RE success")
+                    removeEmployee();
+                    // start();
                     break;
 
                 case "Exit":
@@ -76,7 +82,7 @@ function viewEmployees(){
            first_name: res[i].first_name,
            last_name: res[i].last_name,
            role: res[i].role_id,
-           manager: res[i].manager_id
+           manager: res[i].manager
          })
       }
       console.table(viewInfo);
@@ -85,47 +91,77 @@ function viewEmployees(){
   };
 
   function addEmployee(){
-    inquirer
-    .prompt([
-        {
+    inquirer.prompt([
+      {
         type: "input",
         name: "first_name",
         message: "New Employee's First Name?"
-        },
-    {
+      },
+      {
         type: "input",
         name: "last_name",
         message: "New Employee's Last Name?"
-    },
-    {
+      },
+      {
         type: "number",
         name: "role_id",
         message: "What will be the Employee's role id?"
-    },
-    {
-        type: "number",
-        name: "manager_id",
-        message: "What is the Employee's manager id?"
-    }
-    ]).then( response => {
+      },
+      {
+        type: "input",
+        name: "manager",
+        message: "Who is the new employee's manager?"
+      }
+    ]).then(response => {
         createEmpDB(response);
         start();
       });
 };
 
 function createEmpDB(response){
-  console.log("Inserting a new employee...\n");
-  var query = connection.query(
-    "INSERT INTO employee SET ?",
+  console.log("Adding the new employee into database." + "\n");
+  var query = connection.query("INSERT INTO employee SET ?",
     {
       first_name: response.first_name,
       last_name: response.last_name,
       role_id: response.role_id,
-      manager_id: response.manager_id
+      manager: response.manager
     },
     function(err, res) {
       if (err) throw err;
-      console.log(res.affectedRows + " New employee created!\n");
     }
   );
+};
+
+function removeEmployee() {
+
+  const employeesArr = [];
+  connection.query("SELECT * FROM employee", function (err, res) {
+    if (err) throw err;
+    for (i = 0; i < res.length; i++) {
+      employeesArr.push(res[i].first_name + " " + res[i].last_name);
+    }
+    console.log(employeesArr);
+
+  inquirer.prompt([
+      {
+        type: "list",
+        name: "deleteEmployee",
+        message: "Which employee would you like to remove?",
+        choices: employeesArr
+      }
+    ]).then(response => {
+        connection.query("SELECT * FROM employee", function (err, res){
+          const deletedEmployee = res.filter(employee => response.deleteEmployee === employee.first_name + " " + employee.last_name);
+          employeeID = deletedEmployee[0].id
+          connection.query(
+            "DELETE FROM employee WHERE id = ?", [employeeID],
+            function (err, res) {
+              if (err) throw err;
+              console.log("Employee has been removed." + "\n");
+              start();
+            })
+          })
+        }) 
+    })
 };
