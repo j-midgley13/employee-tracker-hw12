@@ -43,7 +43,7 @@ function start() {
             type: "list",
             name: "startMenu",
             message: "Welcome to the employee tracker! Choose from the selections below.",
-            choices: ["View Employees", "Add Employee", "Update Employee Role", "Remove Employee", "Exit"]
+            choices: ["View Employees", "Add Employee", "Update Employee Role", "Remove Employee", "View Departments", "Add Department", "Remove Department", "Exit"]
         },
         ).then(response => {
             switch(response.startMenu) {
@@ -51,25 +51,36 @@ function start() {
                 case "View Employees":
                     console.log("VE success")
                     viewEmployees();
-                    // start();
                     break;
 
                 case "Add Employee":
                     console.log("AE success")
                     addEmployee();
-                    // start();
                     break;
 
                 case "Update Employee Role":
                     console.log("UER success")
                     updateEmployee();
-                    // start();
                     break;
 
                 case "Remove Employee":
                     console.log("RE success")
                     removeEmployee();
-                    // start();
+                    break;
+
+                case "View Departments":
+                    console.log("AD Success")
+                    viewDepartments();
+                    break;
+
+                case "Add Department":
+                    console.log("AD Success")
+                    addDepartment();
+                    break;
+
+                  case "Remove Department":
+                    console.log("AD Success")
+                    removeDepartment();
                     break;
 
                 case "Exit":
@@ -170,7 +181,7 @@ function removeEmployee() {
               if (err) throw err;
               console.log("Employee has been removed." + "\n");
               start();
-            })
+            });
           })
         }) 
     })
@@ -224,10 +235,69 @@ function updateEmployee () {
               if (err) throw err;
               console.log("  Employee role updated! \n");
               start();
-            })
-        })
+            });
+        });
       })
     })
   })
+};
 
-}
+function viewDepartments(){
+  let departmentsArr = [];
+  connection.query("SELECT * FROM department", function (err, res) {
+    if (err) throw err;
+    for (i = 0; i < res.length; i++) {
+      departmentsArr.push(res[i].name);
+    }
+    console.log(departmentsArr);
+    start();
+  })
+};
+
+function addDepartment() {
+
+  inquirer.prompt([
+      {
+        type: "input",
+        name: "newDepartment",
+        message: "Name of Department would you like to add?"
+      }
+    ]).then(response => {
+      connection.query("INSERT INTO department SET ?",
+        {
+          name: response.newDepartment
+        },
+        function (err, res) {
+          if (err) throw err;
+          console.log(response.newDepartment + " department has been added! \n");
+          start();
+        });
+    })
+};
+
+function removeDepartment() {
+  let departmentsArr = [];
+  connection.query("SELECT * FROM department", function (err, res) {
+    if (err) throw err;
+    for (i = 0; i < res.length; i++) {
+      departmentsArr.push(res[i].name);
+    }
+    console.log(departmentsArr);
+
+    inquirer.prompt([
+        {
+          type: "list",
+          name: "deletedDepartment",
+          message: "Which department would you like to remove?",
+          choices: departmentsArr
+        }
+      ]).then(response => {
+        connection.query("DELETE FROM department WHERE name = ?", response.deletedDepartment,
+          function (err, res) {
+            if (err) throw err;
+            console.log("\n" + "Department successfully removed!" + "\n");
+            start();
+          });
+      })
+  })
+};
