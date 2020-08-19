@@ -6,14 +6,12 @@ const consoleTable = require("console.table");
 let connection = mysql.createConnection({
   host: "localhost",
 
-  // Your port; if not 3306
   port: 3306,
 
-  // Your username
   user: "root",
 
-  // Your password
   password: "",
+
   database: "employeeTracker_db"
 });
 
@@ -34,16 +32,13 @@ connection.query("SELECT title FROM role", function (err, res){
     }
 });
 
-// More choices once employee ones work.
-// "View Departments", "Add Department", "View Roles", "Add Role", 
-
 function start() {
     inquirer.prompt(
         {
             type: "list",
             name: "startMenu",
             message: "Welcome to the employee tracker! Choose from the selections below.",
-            choices: ["View Employees", "Add Employee", "Update Employee Role", "Remove Employee", "View Departments", "Add Department", "Remove Department", "Exit"]
+            choices: ["View Employees", "Add Employee", "Update Employee Role", "Remove Employee", "View Departments", "Add Department", "Remove Department", "View Roles", "Add Role", "Remove Role", "Exit"]
         },
         ).then(response => {
             switch(response.startMenu) {
@@ -69,7 +64,7 @@ function start() {
                     break;
 
                 case "View Departments":
-                    console.log("AD Success")
+                    console.log("VD Success")
                     viewDepartments();
                     break;
 
@@ -79,8 +74,23 @@ function start() {
                     break;
 
                   case "Remove Department":
-                    console.log("AD Success")
+                    console.log("RD Success")
                     removeDepartment();
+                    break;
+
+                  case "View Roles":
+                    console.log("VR Success")
+                    viewRoles();
+                    break;
+
+                  case "Add Role":
+                    console.log("AR Success")
+                    addRole();
+                    break;
+
+                  case "Remove Role":
+                    console.log("RR Success")
+                    removeRole();
                     break;
 
                 case "Exit":
@@ -247,9 +257,11 @@ function viewDepartments(){
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
     for (i = 0; i < res.length; i++) {
-      departmentsArr.push(res[i].name);
+      departmentsArr.push({
+        name: res[i].name
+      })
     }
-    console.log(departmentsArr);
+    console.table(departmentsArr);
     start();
   })
 };
@@ -295,9 +307,80 @@ function removeDepartment() {
         connection.query("DELETE FROM department WHERE name = ?", response.deletedDepartment,
           function (err, res) {
             if (err) throw err;
-            console.log("\n" + "Department successfully removed!" + "\n");
+            console.log("\n" + "Department has been removed." + "\n");
             start();
           });
       })
+  })
+};
+
+function viewRoles(){
+  let roleArr = [];
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    for (i = 0; i < res.length; i++) {
+      roleArr.push({
+        title: res[i].title,
+        salary: res[i].salary,
+      })
+    }
+    console.table(roleArr);
+    start();
+  });
+};
+
+function addRole() {
+  inquirer.prompt([
+      {
+        type: "input",
+        name: "newRole",
+        message: "What role would you like to add?"
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "What is the salary of this role?"
+      }
+    ]).then(response => {
+      connection.query("INSERT INTO role SET ?",
+        {
+          title: response.newRole,
+          salary: response.salary
+        },
+        function (err, res) {
+          if (err) throw err;
+          console.log(response.newRole + "  role added! \n");
+          start();
+        });
+    })
+};
+
+function removeRole() {
+  let roleArr = [];
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    for (i = 0; i < res.length; i++) {
+      roleArr.push(res[i].title);
+    }
+    console.log(roleArr);
+
+    inquirer.prompt([
+      {
+        type: "list",
+        name: "removedRole",
+        message: "Which role would you like to remove?",
+        choices: roleArr
+      }
+    ]).then(response => {
+      connection.query( "DELETE FROM role WHERE ?",
+        {
+          title: response.removedRole
+        },
+        function (err, res) {
+          if (err) throw err;
+          console.log("\n" + "Role has been removed." + "\n")
+          start();
+        });
+    })
   })
 };
