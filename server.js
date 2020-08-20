@@ -36,14 +36,14 @@ function begin() {
   start();
 }
 
-const rolesArr = [];
-connection.query("SELECT title FROM role", function (err, res){
-    if (err) throw err;
+// const rolesArr = [];
+// connection.query("SELECT title FROM role", function (err, res){
+//     if (err) throw err;
     
-    for (i=0; i<res.length; i++){
-        rolesArr.push(res[i].title)
-    }
-});
+//     for (i=0; i<res.length; i++){
+//         rolesArr.push(res[i].title)
+//     }
+// });
 
 function start() {
     inquirer.prompt(
@@ -194,7 +194,6 @@ function removeEmployee() {
     for (i = 0; i < res.length; i++) {
       employeesArr.push(res[i].first_name + " " + res[i].last_name);
     }
-    console.log(employeesArr);
 
   inquirer.prompt([
       {
@@ -317,7 +316,6 @@ function removeDepartment() {
     for (i = 0; i < res.length; i++) {
       departmentsArr.push(res[i].name);
     }
-    console.log(departmentsArr);
 
     inquirer.prompt([
         {
@@ -388,7 +386,6 @@ function removeRole() {
     for (i = 0; i < res.length; i++) {
       roleArr.push(res[i].title);
     }
-    console.log(roleArr);
 
     inquirer.prompt([
       {
