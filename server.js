@@ -10,7 +10,7 @@ let connection = mysql.createConnection({
 
   user: "root",
 
-  password: "",
+  password: "Ben13folds!",
 
   database: "employeeTracker_db"
 });
@@ -36,14 +36,14 @@ function begin() {
   start();
 }
 
-// const rolesArr = [];
-// connection.query("SELECT title FROM role", function (err, res){
-//     if (err) throw err;
+const rolesArr = [];
+connection.query("SELECT title FROM role", function (err, res){
+    if (err) throw err;
     
-//     for (i=0; i<res.length; i++){
-//         rolesArr.push(res[i].title)
-//     }
-// });
+    for (i=0; i<res.length; i++){
+        rolesArr.push(res[i].title)
+    }
+});
 
 function start() {
     inquirer.prompt(
