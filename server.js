@@ -17,11 +17,24 @@ let connection = mysql.createConnection({
 
 // connect to the mysql server and sql database
 connection.connect(function(err) {
-    console.log("I am in!")
   if (err) throw err;
-  // run the start function after the connection is made to prompt the user
-  start();
+  // run the begin function after the connection is made
+  begin();
 });
+
+function begin() {
+  console.log("\n");
+  console.log("---------------------------------");
+  console.log("---------------------------------");
+  console.log("---------WELCOME TO THE----------");
+  console.log("---------------------------------");
+  console.log("--------EMPLOYEE TRACKER!--------");
+  console.log("---------------------------------");
+  console.log("---------------------------------");
+  console.log("\n");
+  // starts the app
+  start();
+}
 
 const rolesArr = [];
 connection.query("SELECT title FROM role", function (err, res){
@@ -38,69 +51,75 @@ function start() {
             type: "list",
             name: "startMenu",
             message: "Welcome to the employee tracker! Choose from the selections below.",
-            choices: ["View Employees", "Add Employee", "Update Employee Role", "Remove Employee", "View Departments", "Add Department", "Remove Department", "View Roles", "Add Role", "Remove Role", "Exit"]
+            choices: [
+                      "View Employees",
+                      "Add Employee",
+                      "Update Employee Role",
+                      "Remove Employee", 
+                      "View Departments",
+                      "Add Department",
+                      "Remove Department",
+                      "View Roles",
+                      "Add Role",
+                      "Remove Role",
+                      "Exit"
+                      ]
         },
         ).then(response => {
             switch(response.startMenu) {
 
                 case "View Employees":
-                    console.log("VE success")
                     viewEmployees();
                     break;
 
                 case "Add Employee":
-                    console.log("AE success")
                     addEmployee();
                     break;
 
                 case "Update Employee Role":
-                    console.log("UER success")
                     updateEmployee();
                     break;
 
                 case "Remove Employee":
-                    console.log("RE success")
                     removeEmployee();
                     break;
 
                 case "View Departments":
-                    console.log("VD Success")
                     viewDepartments();
                     break;
 
                 case "Add Department":
-                    console.log("AD Success")
                     addDepartment();
                     break;
 
                   case "Remove Department":
-                    console.log("RD Success")
                     removeDepartment();
                     break;
 
                   case "View Roles":
-                    console.log("VR Success")
                     viewRoles();
                     break;
 
                   case "Add Role":
-                    console.log("AR Success")
                     addRole();
                     break;
 
                   case "Remove Role":
-                    console.log("RR Success")
                     removeRole();
                     break;
 
                 case "Exit":
-                    console.log("exit success")
+                  console.log("---------------------------------");
+                  console.log("-----Thank You for using the-----");
+                  console.log("---------------------------------");
+                  console.log("--------EMPLOYEE TRACKER---------");
+                  console.log("---------------------------------");
                     return connection.end();
-
             };
         })
 };
 
+// Joins data from role to add onto the console.table
 function viewEmployees(){
     connection.query("SELECT first_name, last_name, title, salary, manager FROM employee LEFT JOIN role ON employee.role_id = role.id", function(err, res) {
       if (err) throw err;
@@ -121,36 +140,38 @@ function viewEmployees(){
     });
   };
 
-  function addEmployee(){
-    inquirer.prompt([
-      {
-        type: "input",
-        name: "first_name",
-        message: "New Employee's First Name?"
-      },
-      {
-        type: "input",
-        name: "last_name",
-        message: "New Employee's Last Name?"
-      },
-      {
-        type: "number",
-        name: "role_id",
-        message: "What will be the Employee's role id?"
-      },
-      {
-        type: "input",
-        name: "manager",
-        message: "Who is the new employee's manager?"
-      }
-    ]).then(response => {
-        createEmpDB(response);
-        start();
-      });
+  // Adds an employee into the database 
+function addEmployee(){
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "first_name",
+      message: "New Employee's First Name?"
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "New Employee's Last Name?"
+    },
+    {
+      type: "number",
+      name: "role_id",
+      message: "What will be the Employee's role id?"
+    },
+    {
+      type: "input",
+      name: "manager",
+      message: "Who is the new employee's manager?"
+    }
+  ]).then(response => {
+      // takes response and puts it in createEmpDB function
+      createEmpDB(response);
+      start();
+    });
 };
 
 function createEmpDB(response){
-  console.log("Adding the new employee into database." + "\n");
+  console.log("\n" + "Adding the new employee into database." + "\n");
   var query = connection.query("INSERT INTO employee SET ?",
     {
       first_name: response.first_name,
@@ -164,6 +185,7 @@ function createEmpDB(response){
   );
 };
 
+// Removes employee from database
 function removeEmployee() {
 
   const employeesArr = [];
@@ -183,6 +205,7 @@ function removeEmployee() {
       }
     ]).then(response => {
         connection.query("SELECT * FROM employee", function (err, res){
+          // This was difficult to grasp. Help from fellow students gave me excellent code.
           const deletedEmployee = res.filter(employee => response.deleteEmployee === employee.first_name + " " + employee.last_name);
           employeeID = deletedEmployee[0].id
           connection.query(
@@ -197,6 +220,7 @@ function removeEmployee() {
     })
 };
 
+// Updates employee role
 function updateEmployee () {
   const employeeArr = [];
   connection.query("SELECT * FROM employee", function (err, res) {
@@ -204,8 +228,6 @@ function updateEmployee () {
     for (i=0; i < res.length; i++) {
       employeeArr.push(res[i].first_name + " " + res[i].last_name);
     }
-    // console.log(employeeArr);
-    // console.log(rolesArr);
 
     inquirer.prompt([
       {
@@ -225,12 +247,10 @@ function updateEmployee () {
         if (err) throw err;
         let updatedEmployee = res.filter(employee => response.updateEmployee === employee.first_name + " " + employee.last_name);
         employeeID = updatedEmployee[0].id;
-        // console.log(employeeID);
 
         connection.query("SELECT * FROM role", function (err, res) {
           if (err) throw err;
           let newRoleID = res.filter(employee => response.roleType === employee.title)[0].id;
-          // console.log(newRoleID);
           
           connection.query("UPDATE employee SET ? WHERE ?",
             [
@@ -243,7 +263,7 @@ function updateEmployee () {
             ],
             function (err, res) {
               if (err) throw err;
-              console.log("  Employee role updated! \n");
+              console.log("\n" + "Employee role updated!" + "\n");
               start();
             });
         });
@@ -252,6 +272,7 @@ function updateEmployee () {
   })
 };
 
+// view departments
 function viewDepartments(){
   let departmentsArr = [];
   connection.query("SELECT * FROM department", function (err, res) {
@@ -266,6 +287,7 @@ function viewDepartments(){
   })
 };
 
+// Adds a department to the table in database
 function addDepartment() {
 
   inquirer.prompt([
@@ -287,6 +309,7 @@ function addDepartment() {
     })
 };
 
+// removes a department from database
 function removeDepartment() {
   let departmentsArr = [];
   connection.query("SELECT * FROM department", function (err, res) {
@@ -314,6 +337,7 @@ function removeDepartment() {
   })
 };
 
+// views the roles of jobs (title and salary)
 function viewRoles(){
   let roleArr = [];
   connection.query("SELECT * FROM role", function (err, res) {
@@ -329,6 +353,7 @@ function viewRoles(){
   });
 };
 
+// adds a role to role database
 function addRole() {
   inquirer.prompt([
       {
@@ -355,6 +380,7 @@ function addRole() {
     })
 };
 
+// removes role from database
 function removeRole() {
   let roleArr = [];
   connection.query("SELECT * FROM role", function (err, res) {
