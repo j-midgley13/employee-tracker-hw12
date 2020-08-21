@@ -10,7 +10,7 @@ let connection = mysql.createConnection({
 
   user: "root",
 
-  password: "Ben13folds!",
+  password: "",
 
   database: "employeeTracker_db"
 });
@@ -109,11 +109,13 @@ function start() {
                     break;
 
                 case "Exit":
-                  console.log("---------------------------------");
-                  console.log("-----Thank You for using the-----");
-                  console.log("---------------------------------");
-                  console.log("--------EMPLOYEE TRACKER---------");
-                  console.log("---------------------------------");
+                    console.log("\n");
+                    console.log("---------------------------------");
+                    console.log("-----Thank You for using the-----");
+                    console.log("---------------------------------");
+                    console.log("--------EMPLOYEE TRACKER---------");
+                    console.log("---------------------------------");
+                    console.log("\n");
                     return connection.end();
             };
         })
